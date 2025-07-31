@@ -7,6 +7,7 @@ from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
 from flask_migrate import Migrate, migrate
+from flask_jwt_extended import JWTManager
 
 import sqlalchemy as sa
 from sqlalchemy.orm import Mapped, mapped_column
@@ -18,6 +19,7 @@ class Base(DeclarativeBase):
 
 db = SQLAlchemy(model_class=Base)
 migrate = Migrate()
+jwt = JWTManager()
 
 
 class User(db.Model):
@@ -26,7 +28,9 @@ class User(db.Model):
     active: Mapped[bool] = mapped_column(sa.Boolean, default=True)
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, username={self.username!r}, active={self.active!r})"
+        return (
+            f"User(id={self.id!r}, username={self.username!r}, active={self.active!r})"
+        )
 
 
 class Post(db.Model):
@@ -57,6 +61,7 @@ def create_app(test_config=None):
     app.config.from_mapping(
         SECRET_KEY="dev",
         SQLALCHEMY_DATABASE_URI="sqlite:///byteme.sqlite",
+        JWT_SECRET_KEY="$cadush@MF",
     )
 
     if test_config is None:
@@ -83,10 +88,12 @@ def create_app(test_config=None):
     # initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
 
-    from src.routes import user, post
+    from src.routes import user, post, auth
 
     app.register_blueprint(user.app)
     app.register_blueprint(post.app)
+    app.register_blueprint(auth.app)
 
     return app
