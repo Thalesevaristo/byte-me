@@ -1,0 +1,23 @@
+[project]
+name = "byte-me"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "flask>=3.1.1",
+    "flask-jwt-extended>=4.7.1",
+    "flask-migrate>=4.1.0",
+    "flask-sqlalchemy>=3.1.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+]
+
+[tool.pytest.ini_options]
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
