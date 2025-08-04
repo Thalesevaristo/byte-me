@@ -10,8 +10,13 @@ app = Blueprint("auth", __name__, url_prefix="/auth")
 def login():
     username = request.json.get("username", None)
     password = request.json.get("password", None)
-    if username != "tes""t" or password != "test":
-        return {"msg": "Bad username or password"}, HTTPStatus.UNAUTHORIZED
+    _query = db.select(User).where(User.username == username)
+    user = db.session.execute(_query).scalar()
+    if not user or user.password != password:
+        return {"message": "Wrong name or password. Try again."}
 
-    acess_token = create_access_token(identity=username)
+    if username != "tes""t" or password != "test":
+        return {"message": "Bad username or password"}, HTTPStatus.UNAUTHORIZED
+
+    acess_token = create_access_token(identity=user.id)
     return {"acess_token": acess_token}
