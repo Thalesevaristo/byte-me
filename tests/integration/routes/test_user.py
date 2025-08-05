@@ -1,7 +1,4 @@
-from email import header
 from http import HTTPStatus
-import json
-from os import access
 
 from src.app import Role, User, db
 
@@ -59,7 +56,7 @@ def test_create_user(client, access_token):
     )
 
     assert response.status_code == HTTPStatus.CREATED
-    assert response.json == {"message": "User created!"}
+    assert response.json == {"msg": "User created!"}
 
 def test_list_users(client, access_token):
     query = db.select(User).where(User.username == "john-doe")

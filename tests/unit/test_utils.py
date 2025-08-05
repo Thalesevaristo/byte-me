@@ -1,7 +1,3 @@
-from unittest import result
-from unittest.mock import patch
-
-import pytest
 from http import HTTPStatus
 from src.utils import requires_roles
 
@@ -31,4 +27,4 @@ def test_requires_roles_fail(mocker):
     decorated_function = requires_roles("admin")(lambda: "OK")
     result = decorated_function()
 
-    assert result == ({"message": "User don`t have acess level."}, HTTPStatus.FORBIDDEN)
+    assert result == ({"msg": "User don`t have acess level."}, HTTPStatus.FORBIDDEN)
