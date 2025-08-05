@@ -51,7 +51,10 @@ def handle_user():
 @app.route("/<int:user_id>")
 def get_user(user_id):
     user = db.get_or_404(User, user_id)
-    return {"id": user.id, "username": user.username}
+    return {
+        "id": user.id,
+        "username": user.username,
+    }
 
 
 @app.route("/<int:user_id>", methods=["PATCH"])

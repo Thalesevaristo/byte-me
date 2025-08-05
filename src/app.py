@@ -25,7 +25,10 @@ jwt = JWTManager()
 class Role(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(sa.ForeignKey("role.id"))
-    user: Mapped[list["User"]] = relationship(back_populates="role")
+    users: Mapped[list["User"]] = relationship("User", back_populates="role")
+
+    def __repr__(self) -> str:
+        return f"Role(id={self.id!r}, name={self.name!r})"
 
 
 class User(db.Model):
@@ -33,8 +36,10 @@ class User(db.Model):
     username: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(sa.String, nullable=False)
     active: Mapped[bool] = mapped_column(sa.Boolean, default=True)
-    role_id: Mapped[int] = mapped_column(sa.Integer, nullable=True)
-    role: Mapped["Role"] = relationship(back_populates="user")
+    role_id: Mapped[int] = mapped_column(
+        sa.Integer, sa.ForeignKey("role.id"), nullable=True
+    )
+    role: Mapped["Role"] = relationship("Role", back_populates="users")
 
     def __repr__(self) -> str:
         return f"User(id={self.id!r}, username={self.username!r}, active={self.active!r}, role={self.role!r})"
