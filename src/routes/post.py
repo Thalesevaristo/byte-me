@@ -6,6 +6,7 @@ from sqlalchemy import inspect
 
 app = Blueprint("post", __name__, url_prefix="/posts")
 
+
 @jwt_required()
 def _create_post():
     data = request.json
@@ -19,14 +20,25 @@ def _create_post():
     if not user:
         return {"msg": "User not found"}, HTTPStatus.NOT_FOUND
 
-    post = Post(title=data["title"], body=data["body"], author_id=user.id)
+    post = Post(
+        title=data["title"],
+        body=data["body"],
+        author_id=user.id,
+    )
     db.session.add(post)
     db.session.commit()
+
 
 def _list_posts():
     query = db.select(Post)
     posts = db.session.execute(query).scalars()
-    return [{"id": post.id, "title": post.title} for post in posts]
+    return [
+        {
+            "id": post.id,
+            "title": post.title,
+        }
+        for post in posts
+    ]
 
 
 @app.route("/", methods=["GET", "POST"])
