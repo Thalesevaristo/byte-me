@@ -24,7 +24,7 @@ jwt = JWTManager()
 
 class Role(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
-    name: Mapped[str] = mapped_column(sa.ForeignKey("role.id"))
+    name: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)
     users: Mapped[list["User"]] = relationship("User", back_populates="role")
 
     def __repr__(self) -> str:
@@ -88,11 +88,6 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    # a simple page that says hello
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
 
     # register cli commands
     app.cli.add_command(init_db_command)
