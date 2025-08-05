@@ -16,8 +16,8 @@ def _list_posts():
     posts = db.session.execute(query).scalars()
     return [
         {
-            "id": Post.id,
-            "title": Post.title
+            "id": post.id,
+            "title": post.title
         }
         for post in posts
     ]
@@ -33,12 +33,12 @@ def handle_post():
 
 @app.route("/<int:post_id>")
 def get_post(post_id):
-    user = db.get_or_404(Post, post_id)
+    post = db.get_or_404(Post, post_id)
     return {
-        "id": Post.id,
-        "author_id": Post.author_id,
-        "title": Post.title,
-        "body": Post.body
+        "id": post.id,
+        "author_id": post.author_id,
+        "title": post.title,
+        "body": post.body
     }
 
 @app.route("/<int:post_id>", methods=["PATCH"])
