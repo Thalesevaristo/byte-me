@@ -43,7 +43,7 @@ def handle_user():
 
     if request.method == "POST":
         _create_user()
-        return {"message": "User created!"}, HTTPStatus.CREATED
+        return {"msg": "User created!"}, HTTPStatus.CREATED
     else:
         return {"users": _list_users()}
 
