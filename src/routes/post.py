@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from src.app import Post, db, User
+from src.models import db, User, Post
 from http import HTTPStatus
 from sqlalchemy import inspect
 
