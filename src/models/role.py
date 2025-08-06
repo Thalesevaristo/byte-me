@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .base import db
 
+
 class Role(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(sa.String, unique=True, nullable=False)

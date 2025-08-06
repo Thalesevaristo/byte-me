@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import db
 
+
 class Post(db.Model):
     id: Mapped[int] = mapped_column(sa.Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(sa.String, nullable=False)
