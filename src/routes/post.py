@@ -8,8 +8,7 @@ app = Blueprint("post", __name__, url_prefix="/posts")
 
 
 @jwt_required()
-def _create_post():
-    data = request.json
+def create_post(data: dict) -> tuple[dict, int]:
 
     if not data or not data.get("title") or not data.get("body"):
         return {"msg": "Missing title or body"}, HTTPStatus.BAD_REQUEST
@@ -28,10 +27,13 @@ def _create_post():
     db.session.add(post)
     db.session.commit()
 
+    return {"msg": "User created!"}, HTTPStatus.CREATED
 
-def _list_posts():
+
+def list_posts():
     query = db.select(Post)
     posts = db.session.execute(query).scalars()
+
     return [
         {
             "id": post.id,
@@ -41,18 +43,8 @@ def _list_posts():
     ]
 
 
-@app.route("/", methods=["GET", "POST"])
-def handle_post():
-    if request.method == "POST":
-        _create_post()
-        return {"msg": "Post created!"}, HTTPStatus.CREATED
-    else:
-        return {"posts": _list_posts()}
+def get_post(post: Post) -> dict:
 
-
-@app.route("/<int:post_id>")
-def get_post(post_id):
-    post = db.get_or_404(Post, post_id)
     return {
         "id": post.id,
         "author_id": post.author_id,
@@ -61,30 +53,47 @@ def get_post(post_id):
     }
 
 
-@app.route("/<int:post_id>", methods=["PATCH"])
-def update_post(post_id):
-    post = db.get_or_404(Post, post_id)
-    data = request.json
-
-    mapper = inspect(Post)
+def update_post(post: Post, data: dict) -> tuple[dict, int]:
+    mapper = inspect(User)
     for column in mapper.attrs:
-        if column.key in data:
-            setattr(post, column.key, data[column.key])
+        key = column.key
+        if key in data:
+            setattr(post, key, data[key])
     db.session.commit()
 
-    return {
-        "id": Post.id,
-        "author_id": Post.author_id,
-        "title": Post.title,
-        "body": Post.body,
-    }
+    return get_post(post), HTTPStatus.OK
 
 
-@app.route("/<int:post_id>", methods=["DELETE"])
-def delete_post(post_id):
-    post = db.get_or_404(Post, post_id)
-
+def delete_post(post: Post) -> tuple[str, int]:
     db.session.delete(post)
     db.session.commit()
 
     return "", HTTPStatus.NO_CONTENT
+
+
+@app.route("/", methods=["GET", "POST"])
+@jwt_required()
+def handle_post():
+
+    if request.method == "POST":
+        data = request.get_json()
+        return create_post(data)
+
+    else:
+        return {"users": list_posts()}, HTTPStatus.OK
+
+
+@app.route("/<int:post_id>", methods=["GET", "PATCH", "DELETE"])
+@jwt_required()
+def post_control(post_id: int):
+    post = db.get_or_404(Post, post_id)
+
+    if request.method == "PATCH":
+        data = request.get_json()
+        return update_post(post, data)
+
+    elif request.method == "DELETE":
+        return delete_post(post)
+
+    else:
+        return get_post(post), HTTPStatus.OK
