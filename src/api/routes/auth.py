@@ -1,6 +1,6 @@
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token
-from src.models import db, User
+from src.database.models import db, User
 from src.app import bcrypt
 
 from http import HTTPStatus

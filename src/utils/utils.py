@@ -1,7 +1,7 @@
 from http import HTTPStatus
 
 from flask_jwt_extended import get_jwt_identity
-from src.models import User, db
+from src.database.models import User, db
 from functools import wraps
 
 
@@ -13,7 +13,9 @@ def requires_roles(role_name):
             user = db.get_or_404(User, user_id)
 
             if user.role.name != role_name:
-                return {"msg": "User don`t have acess level."}, HTTPStatus.FORBIDDEN
+                return {
+                    "msg": "User don`t have acess level.",
+                }, HTTPStatus.FORBIDDEN
             return f(*args, **kwargs)
 
         return wrapped

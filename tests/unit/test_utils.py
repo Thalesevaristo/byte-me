@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from src.utils import requires_roles
+from utils.utils import requires_roles
 
 
 def test_requires_roles_sucess(mocker):

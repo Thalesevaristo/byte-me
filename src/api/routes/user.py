@@ -2,16 +2,27 @@ from flask import Blueprint, request
 from flask_jwt_extended import jwt_required
 from sqlalchemy import inspect
 
-from src.models import User, db
-from src.utils import requires_roles
+from http import HTTPStatus
+
+from src.utils.utils import requires_roles
+
+from src.database.schemas.user import CreateUserSchema, UserSchema
+from src.database.models import User, db
 from src.app import bcrypt
 
-from http import HTTPStatus
+from marshmallow import ValidationError
+
 
 app = Blueprint("user", __name__, url_prefix="/users")
 
 
 def create_user(data: dict) -> tuple[dict, int]:
+    user_schema = CreateUserSchema()
+    try:
+        data = user_schema.load(request.get_json())
+    except ValidationError as exc:
+        return exc.messages, HTTPStatus.UNPROCESSABLE_ENTITY
+
     user = User(
         username=data["username"],
         password=bcrypt.generate_password_hash(data["password"]).decode("utf-8"),
@@ -23,20 +34,13 @@ def create_user(data: dict) -> tuple[dict, int]:
     return {"msg": "User created!"}, HTTPStatus.CREATED
 
 
+@jwt_required()
+@requires_roles("admin")
 def list_users():
     query = db.select(User)
-    users = db.session.execute(query).scalars()
-    return [
-        {
-            "id": user.id,
-            "username": user.username,
-            "role": {
-                "id": user.role.id,
-                "name": user.role.name,
-            },
-        }
-        for user in users
-    ]
+    users = db.session.execute(query).scalars().all()
+    users_schema = UserSchema(many=True)
+    return users_schema.dump(users)
 
 
 def get_user(user: User) -> dict:
@@ -63,8 +67,6 @@ def delete_user(user: User) -> tuple[str, int]:
 
 
 @app.route("/", methods=["GET", "POST"])
-@jwt_required()
-@requires_roles("admin")
 def handle_user():
 
     if request.method == "POST":

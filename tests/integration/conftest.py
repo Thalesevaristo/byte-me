@@ -1,5 +1,5 @@
 import pytest
-from src.models import db, Role, User
+from src.database.models import db, Role, User
 from src.app import create_app
 
 @pytest.fixture
